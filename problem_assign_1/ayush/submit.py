@@ -1,6 +1,7 @@
 import numpy as np
 import random as rnd
 import time as tm
+import matplotlib.pyplot as plt
 import math
 
 def getCyclicCoord(i, n):
@@ -36,7 +37,7 @@ def solver( X, y, C, timeout, spacing ):
 	# You may also define new variables here e.g. eta, B etc
 
 	#add the bias to the dataset, i.e. a column of ones before the 1st column
-	X_new = np.insert(X, 0, 1, axis=1)
+	X = np.insert(X, 0, 1, axis=1)
 
 	#randomly initialize alpha
 	#alpha = np.ones( (n,) )
@@ -47,20 +48,28 @@ def solver( X, y, C, timeout, spacing ):
 	#increase the dimension of w by 1 to account for the bias term
 	w = np.zeros( (d+1,) )
 	for i in range(0, n):
-		w += alpha[i] * y[i] * X_new[i][:]
-	eta = 2.5
+		w += alpha[i] * y[i] * X[i][:]
+	eta = 0.5
 	i = 1
+	var_min = 0.1
+	var = var_min+1
+	converged = False
+
+	objseries = []
+	timeseries = []
 
 ################################
 # Non Editable Region Starting #
 ################################
 	while True:
 		t = t + 1
-		if t % spacing == 0:
+		if t % spacing == 0 or converged:
 			toc = tm.perf_counter()
 			totTime = totTime + (toc - tic)
-			if totTime > timeout:
-				return (w[1:], w[0], totTime)
+			if totTime > timeout or converged:
+				#plt.plot(timeseries, objseries)
+				#plt.show()
+				return (w[1:], w[0], totTime, timeseries, objseries)
 			else:
 				tic = tm.perf_counter()
 ################################
@@ -68,17 +77,28 @@ def solver( X, y, C, timeout, spacing ):
 ################################
 		#print("doing scd")
 		#doing stochastic coordinate descent
-		print(getObj( X_new[:,1:], y, w[1:], w[0] ))
+		timeseries.append(t)
+		objseries.append(getObj(X[:,1:], y, w[1:], w[0]))
+		print(objseries[-1])
+		#check for convergence
+		#print(objseries[-10:])
+		if len(objseries) > 10:
+			var = np.var(objseries[-10:])
+		#print("var = ")
+		#print(var)
+		if var < var_min:
+			converged = True
+		#print(getObj( X[:,1:], y, w[1:], w[0] ))
 		#print(alpha)
 		step_length = eta / math.sqrt(t)
-		#i = getCyclicCoord(i, n)
-		i = np.random.randint(0, n)
+		i = getCyclicCoord(i, n)
+		#i = np.random.randint(0, n)
 		alphai = alpha[i]
-		grad = 1 - alphai/(2*C) - y[i] * np.dot(w, X_new[i][:])
+		grad = 1 - alphai/(2*C) - y[i] * np.dot(w, X[i][:])
 		new_alphai = alphai + step_length * grad
 		if (new_alphai < 0):
 			new_alphai = 0
-		w += (new_alphai - alphai) * y[i] * X_new[i][:]
+		w += (new_alphai - alphai) * y[i] * X[i][:]
 		#only the ith coordinate of alpha will change
 		alpha[i] = new_alphai
 		# Write all code to perform your method updates here within the infinite while loop
