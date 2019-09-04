@@ -16,7 +16,7 @@ avgTime = 0
 avgPerf = 0
 
 # To avoid unlucky outcomes try running the code several times
-numTrials = 2
+numTrials = 1
 # 30 second timeout for each run
 timeout = 30
 # Try checking for timeout every 100 iterations
@@ -34,7 +34,7 @@ for t in range( numTrials ):
     for i in range(n1):
         cat = (1 if (X1[i].dot(w) + b >= 0) else -1)
         pos += (1 if cat == y1[i] else 0)
-        print(X1[i].dot(w) + b, file=sys.stderr)
+        # print(X1[i].dot(w) + b, file=sys.stderr)
         if(X1[i].dot(w) + b >= 0):
             actualpos += 1
         else:
@@ -45,6 +45,7 @@ for t in range( numTrials ):
             totalneg += 1
 
     print("objective = ", getObj(X,y,w,b))
+    print("obj on validation = ", getObj(X1,y1,w,b))
     print("accuracy= ", pos/n1)
     print(totalpos," = totalpos and totalneg = ",totalneg)
     print(actualpos," = actualpos and actualneg = ",actualneg)
