@@ -95,16 +95,19 @@ def solver( X, y, C, timeout, spacing ):
 				return (w, b, totTime)
 			else:
 				tic = tm.perf_counter()
-			theta_SGD = doGD( X, y,C,getCSVMSGrad, getStepLength, theta, horizon = 1 )
-			#print (w)
-			w = theta_SGD[0:-1]
-			b = theta_SGD[-1]
-			theta = theta_SGD
-			print(getObj(X,y,C,w,b))
+
 		# The infinite loop will terminate once timeout is reached
 		# Do not try to bypass the timer check e.g. by using continue
 		# It is very easy for us to detect such bypasses - severe penalties await
-		
+		theta_SGD = doGD( X, y,C,getCSVMSGrad, getStepLength, theta, horizon = 1 )
+		#print (w)
+		w_run = theta_SGD[0:-1]
+		b_run = theta_SGD[-1]
+		theta = theta_SGD
+		if(getObj(X,y,C,w_run,b_run) < getObj(X,y,C,w,b)):
+			w = w_run
+			b = b_run
+		print(getObj(X,y,C,w,b))
 		# Please note that once timeout is reached, the code will simply return w, b
 		# Thus, if you wish to return the average model (as we did for GD), you need to
 		# make sure that w, b store the averages at all times

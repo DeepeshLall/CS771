@@ -20,7 +20,8 @@ def getRandpermCoord( currentCoord, y,n):
 	else:
 		randpermInner = randpermInner + 1
 		return randperm[randpermInner]
-def getObj( X, y, w, b ):
+def getObj( X, y,C, w, b ):
+	# print(w,b)
 	hingeLoss = np.maximum( np.multiply( (X.dot( w ) + b), y ), 0 )
 	return 0.5 * w.dot( w ) + C * hingeLoss.dot( hingeLoss )
 ################################
@@ -48,6 +49,8 @@ def solver( X, y, C, timeout, spacing ):
 	alphay = np.multiply(alpha,y)
 	w = X.T.dot(alphay)
 	b = alpha.dot(y)
+	w_run = w
+	b_run = b 
 	# Norm = q
 	normSq = np.square( np.linalg.norm( X, axis = 1 ) ) + 1
 	# You may also define new variables here e.g. eta, B etc
@@ -68,7 +71,7 @@ def solver( X, y, C, timeout, spacing ):
 ################################
 #  Non Editable Region Ending  #
 ################################
-		print(getObj(X,y,w,b))
+		print(getObj(X,y,C,w,b))
 		# Write all code to perform your method updates here within the infinite while loop
 		# The infinite loop will terminate once timeout is reached
 		# Do not try to bypass the timer check e.g. by using continue
@@ -76,15 +79,18 @@ def solver( X, y, C, timeout, spacing ):
 		# i = getRandpermCoord(i,y,n)
 		i = getCyclicCoord(i,n)
 		x = X[i,:]
-		newAlphai = (1 - (y[i]*(x.dot(w)+b)) + (alpha[i] * normSq[i]))/( (0.5/C) + (normSq[i]) )
+		newAlphai = (1 - (y[i]*(x.dot(w_run)+b_run)) + (alpha[i] * normSq[i]))/( (0.5/C) + (normSq[i]) )
 		if(newAlphai < 0):
 			newAlphai = 0
-		w = w + (newAlphai - alpha[i]) * y[i] * x
-		b = b + (newAlphai - alpha[i]) * y[i]
-		alpha[i] = newAlphai 
-		if t < horizon:
-			dualObjValSeries[t] = getObj(X,y,w,b)
-			timeSeries[t] = totTime
+		w_run = w_run + (newAlphai - alpha[i]) * y[i] * x
+		b_run = b_run + (newAlphai - alpha[i]) * y[i]
+		alpha[i] = newAlphai
+		if(getObj(X,y,C,w_run,b_run)<getObj(X,y,C,w,b)):
+			w = w_run
+			b = b_run
+		# if t < horizon:
+		# 	dualObjValSeries[t] = getObj(X,y,w,b)
+		# 	timeSeries[t] = totTime
 		# Please note that once timeout is reached, the code will simply return w, b
 		# Thus, if you wish to return the average model (as we did for GD), you need to
 		# make sure that w, b store the averages at all times
