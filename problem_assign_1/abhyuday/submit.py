@@ -22,7 +22,7 @@ def getRandpermCoord( currentCoord, y,n):
 		return randperm[randpermInner]
 def getObj( X, y,C, w, b ):
 	# print(w,b)
-	hingeLoss = np.maximum( np.multiply( (X.dot( w ) + b), y ), 0 )
+	hingeLoss = np.maximum(1 - np.multiply( (X.dot( w ) + b), y ), 0 )
 	return 0.5 * w.dot( w ) + C * hingeLoss.dot( hingeLoss )
 ################################
 # Non Editable Region Starting #
