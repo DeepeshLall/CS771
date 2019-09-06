@@ -50,7 +50,7 @@ def mySVM( X ):
 
 # Quite standard for strongly convex but non-smooth objectives like CSVM
 def getStepLength( grad, t ):
-	return 0.1/(t+1)
+	return 10/(t*t*t+1)
 
 # Get the CSVM objective value in order to plot convergence curves
 def getCSVMObjVal( X,y,C,theta ):
@@ -70,7 +70,7 @@ def solver( X, y, C, timeout, spacing ):
 	
 	# w is the normal vector and b is the bias
 	# These are the variables that will get returned once timeout happens
-	w = np.zeros( (d,) )
+	w = np.ones( (d,) )
 	b = 0
 	tic = tm.perf_counter()
 ################################
@@ -81,7 +81,7 @@ def solver( X, y, C, timeout, spacing ):
 	# You may also define new variables here e.g. eta, B etc
 	eta = 2
 	b = 100
-	C = 0.1
+	#C = 0.1
 	theta = np.append(w,b)
 	cumulative = theta
 ################################
@@ -118,12 +118,12 @@ def solver( X, y, C, timeout, spacing ):
 		theta_SGD = cumulative /(t+1)
 		w_run = theta_SGD[0:-1]
 		b_run = theta_SGD[-1]
-		if getObj(X,y,C,w_run,b_run) < getObj(X,y,C,w,b):
-			w = w_run
-			b = b_run 
+		#if getObj(X,y,C,w_run,b_run) < getObj(X,y,C,w,b):
+		w = w_run
+		b = b_run 
 		theta = theta_SGD
 		cumulative = theta_SGD
-		print(getObj(X,y,C,w_run,b_run))
+		#print(getObj(X,y,C,w_run,b_run))
 		# The infinite loop will terminate once timeout is reached
 		# Do not try to bypass the timer check e.g. by using continue
 		# It is very easy for us to detect such bypasses - severe penalties await

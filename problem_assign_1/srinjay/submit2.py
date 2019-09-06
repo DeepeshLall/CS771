@@ -81,7 +81,7 @@ def solver( X, y, C, timeout, spacing ):
 	# You may also define new variables here e.g. eta, B etc
 	eta = 2
 	b = 1
-	C = 0.1
+	C = 1
 	theta = np.append(w,b)
 ################################
 # Non Editable Region Starting #
