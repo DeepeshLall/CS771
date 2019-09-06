@@ -1,5 +1,5 @@
 import numpy as np
-from submit2 import solver
+from submit3 import solver
 
 def getObj( X, y, w, b ):
 	hingeLoss = np.maximum( 1 - np.multiply( (X.dot( w ) + b), y ), 0 )
@@ -17,7 +17,7 @@ avgPerf = 0
 # To avoid unlucky outcomes try running the code several times
 numTrials = 1
 # 30 second timeout for each run
-timeout = 300
+timeout = 1
 # Try checking for timeout every 100 iterations
 spacing = 100
 
