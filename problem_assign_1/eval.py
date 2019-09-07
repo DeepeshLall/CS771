@@ -2,7 +2,7 @@ import numpy as np
 from submit import solver
 
 def getObj( X, y, w, b ):
-	hingeLoss = np.maximum( np.multiply( (X.dot( w ) + b), y ), 0 )
+	hingeLoss = np.maximum( 1 - np.multiply( (X.dot( w ) + b), y ), 0 )
 	return 0.5 * w.dot( w ) + C * hingeLoss.dot( hingeLoss )
 
 Z = np.loadtxt( "data" )
@@ -23,6 +23,7 @@ spacing = 100
 
 for t in range( numTrials ):
 	(w, b, totTime) = solver( X, y, C, timeout, spacing )
+	print(getObj(X,y,w,b))
 	avgTime = avgTime + totTime
 	avgPerf = avgPerf + getObj( X, y, w, b )
 
