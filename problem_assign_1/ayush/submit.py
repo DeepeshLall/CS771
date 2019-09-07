@@ -46,14 +46,16 @@ def solver( X, y, C, timeout, spacing ):
 		alpha[i] = 0.00
 
 	#increase the dimension of w by 1 to account for the bias term
+	w_run = np.zeros( (d+1,) )
 	w = np.zeros( (d+1,) )
 	for i in range(0, n):
-		w += alpha[i] * y[i] * X[i][:]
-	eta = 0.5
+		w_run += alpha[i] * y[i] * X[i][:]
+	eta0 = 1.0
 	i = 1
 	var_min = 0.1
 	var = var_min+1
-	converged = False
+	obj_min = 100000000000000000
+	#converged = False
 
 	objseries = []
 	timeseries = []
@@ -63,13 +65,15 @@ def solver( X, y, C, timeout, spacing ):
 ################################
 	while True:
 		t = t + 1
-		if t % spacing == 0 or converged:
+		if t % spacing == 0:
+			#print(objseries[-1])
+			#print(getObj(X[:,1:], y, w_run[1:], w_run[0]))
 			toc = tm.perf_counter()
 			totTime = totTime + (toc - tic)
-			if totTime > timeout or converged:
+			if totTime > timeout:
 				#plt.plot(timeseries, objseries)
 				#plt.show()
-				return (w[1:], w[0], totTime, timeseries, objseries)
+				return (w_run[1:], w_run[0], totTime, timeseries, objseries)
 			else:
 				tic = tm.perf_counter()
 ################################
@@ -78,27 +82,27 @@ def solver( X, y, C, timeout, spacing ):
 		#print("doing scd")
 		#doing stochastic coordinate descent
 		timeseries.append(t)
-		objseries.append(getObj(X[:,1:], y, w[1:], w[0]))
-		print(objseries[-1])
+		objseries.append(getObj(X[:,1:], y, w_run[1:], w_run[0]))
+		#print(objseries[-1])
+		#if (objseries[-1] < obj_min):
+		#	obj_min = objseries[-1]
+		#	w = w_run
 		#check for convergence
-		#print(objseries[-10:])
-		if len(objseries) > 10:
-			var = np.var(objseries[-10:])
-		#print("var = ")
-		#print(var)
-		if var < var_min:
-			converged = True
-		#print(getObj( X[:,1:], y, w[1:], w[0] ))
-		#print(alpha)
-		step_length = eta / math.sqrt(t)
+		#if len(objseries) > 10:
+		#	var = np.var(objseries[-10:])
+		#if var < var_min:
+		#	converged = True
+
+		step_length = eta0 / math.sqrt(t)
 		i = getCyclicCoord(i, n)
 		#i = np.random.randint(0, n)
+
 		alphai = alpha[i]
-		grad = 1 - alphai/(2*C) - y[i] * np.dot(w, X[i][:])
+		grad = 1 - alphai/(2*C) - y[i] * np.dot(w_run, X[i][:])
 		new_alphai = alphai + step_length * grad
 		if (new_alphai < 0):
 			new_alphai = 0
-		w += (new_alphai - alphai) * y[i] * X[i][:]
+		w_run += (new_alphai - alphai) * y[i] * X[i][:]
 		#only the ith coordinate of alpha will change
 		alpha[i] = new_alphai
 		# Write all code to perform your method updates here within the infinite while loop
