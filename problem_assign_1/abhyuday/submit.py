@@ -45,7 +45,7 @@ def solver( X, y, C, timeout, spacing ):
 	horizon = 10
 	dualObjValSeries = np.zeros((horizon,))
 	timeSeries = np.zeros( (horizon,) )
-	alpha =  np.ones((n,))
+	alpha =  np.zeros((n,))
 	alphay = np.multiply(alpha,y)
 	w = X.T.dot(alphay)
 	b = alpha.dot(y)
@@ -76,8 +76,8 @@ def solver( X, y, C, timeout, spacing ):
 		# The infinite loop will terminate once timeout is reached
 		# Do not try to bypass the timer check e.g. by using continue
 		# It is very easy for us to detect such bypasses - severe penalties await
-		# i = getRandpermCoord(i,y,n)
-		i = getCyclicCoord(i,n)
+		i = getRandpermCoord(i,y,n)
+		# i = getCyclicCoord(i,n)
 		x = X[i,:]
 		newAlphai = (1 - (y[i]*(x.dot(w_run)+b_run)) + (alpha[i] * normSq[i]))/( (0.5/C) + (normSq[i]) )
 		if(newAlphai < 0):
